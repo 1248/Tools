@@ -5,8 +5,13 @@ import hypercat
 def unittest():
     print "Running unit tests"
 
-    print "\nTEST: Create minimal empty Catalogue, and render to a string with pretty-printing"
+    print "\nTEST: Create minimal empty Catalogue, and render to a string, minimally, then with pretty-printing"
     h = hypercat.hypercat("")
+
+    s = h.asJSONstr()
+    print s
+    assert s=="""{"item-metadata":[{"rel":"urn:X-tsbiot:rels:isContentType","val":"application/vnd.tsbiot.catalogue+json"},{"rel":"urn:X-tsbiot:rels:hasDescription:en","val":""}],"items":[]}"""
+
     result = h.prettyprint()
     print result
     assert result=="""{

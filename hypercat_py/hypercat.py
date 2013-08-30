@@ -123,6 +123,10 @@ class Base:
         """Return hypercat formatted prettily"""
         return json.dumps(self.asJSON(), sort_keys=True, indent=4, separators=(',', ': '))
 
+    def asJSONstr(self):
+        """Return hypercat as a string, of minimum length"""
+        return json.dumps(self.asJSON(), sort_keys=True, separators=(',', ':'))
+
 class hypercat(Base):
     """Create a valid Hypercat catalogue"""
     # Catalogues must be of type catalogue, have a description, and contain at least an empty array of items
