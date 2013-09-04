@@ -6,7 +6,7 @@ def unittest():
     print "Running unit tests"
 
     print "\nTEST: Create minimal empty Catalogue, and render to a string, minimally, then with pretty-printing"
-    h = hypercat.hypercat("")
+    h = hypercat.Hypercat("")
 
     s = h.asJSONstr()
     print s
@@ -29,11 +29,11 @@ def unittest():
 }"""
 
     print "\nTEST: Create a catalogue containing 1 catalogue and 1 resource, held as data"
-    h = hypercat.hypercat("CatalogueContainingOneCatalogueAndOneResource")
-    h2 = hypercat.hypercat("ChildCatalogue")
+    h = hypercat.Hypercat("CatalogueContainingOneCatalogueAndOneResource")
+    h2 = hypercat.Hypercat("ChildCatalogue")
     print "about to add child catalogue"
     h.addItem(h2, "http://FIXMEcat")
-    r = hypercat.resource("resource1", "application/vnd.tsbiot.sensordata+json")
+    r = hypercat.Resource("resource1", "application/vnd.tsbiot.sensordata+json")
     print "about to add child resource"
     h.addItem(r, "http://FIXMEresource")
     result = h.asJSON()
@@ -42,9 +42,9 @@ def unittest():
     assert result=={'items': [{'i-object-metadata': [{'val': 'application/vnd.tsbiot.catalogue+json', 'rel': 'urn:X-tsbiot:rels:isContentType'}, {'val': 'ChildCatalogue', 'rel': 'urn:X-tsbiot:rels:hasDescription:en'}], 'href': 'http://FIXMEcat'}, {'i-object-metadata': [{'val': 'application/vnd.tsbiot.sensordata+json', 'rel': 'urn:X-tsbiot:rels:isContentType'}, {'val': 'resource1', 'rel': 'urn:X-tsbiot:rels:hasDescription:en'}], 'href': 'http://FIXMEresource'}], 'item-metadata': [{'val': 'application/vnd.tsbiot.catalogue+json', 'rel': 'urn:X-tsbiot:rels:isContentType'}, {'val': 'CatalogueContainingOneCatalogueAndOneResource', 'rel': 'urn:X-tsbiot:rels:hasDescription:en'}]}
 
     print "\nTEST: Create a catalogue 2 deep (and output each level)"
-    h1 = hypercat.hypercat("Top")
-    h2 = hypercat.hypercat("Middle")
-    h3 = hypercat.hypercat("Bottom")
+    h1 = hypercat.Hypercat("Top")
+    h2 = hypercat.Hypercat("Middle")
+    h3 = hypercat.Hypercat("Bottom")
     h1.addItem(h2, "http://FIXMEcat2")
     h2.addItem(h3, "http://FIXMEcat3")
     print "Top:"
@@ -58,11 +58,11 @@ def unittest():
     print h3.prettyprint()
 
     print "\nTEST: Creating more than 2 levels of catalogue, then outputting different levels"
-    h1 = hypercat.hypercat("Top")
+    h1 = hypercat.Hypercat("Top")
     h1.addRelation("name","top")
-    h2 = hypercat.hypercat("Middle")
+    h2 = hypercat.Hypercat("Middle")
     h2.addRelation("name","middle")
-    h3 = hypercat.hypercat("Bottom")
+    h3 = hypercat.Hypercat("Bottom")
     h3.addRelation("name","bottom")
     h1.addItem(h2, "http://FIXMEcat2")
     h2.addItem(h3, "http://FIXMEcat3")
@@ -83,7 +83,7 @@ def unittest():
     assert hN.values("name")[0] == "bottom"
 
     print "\nTEST: Create a fancy Catalogue with optional metadata"
-    h2 = hypercat.hypercat("Fancy Catalogue")
+    h2 = hypercat.Hypercat("Fancy Catalogue")
     h2.supportsSimpleSearch()
     h2.hasHomepage("http://www.FIXME.com")
     h2.containsContentType("application/vnd.tsbiot.FIXME+json")
@@ -116,7 +116,7 @@ def unittest():
 }"""
 
     print "\nTEST: Add multiple RELS to a catalogue"
-    h = hypercat.hypercat("cat")
+    h = hypercat.Hypercat("cat")
     assert h.values("relation") == []
     h.addRelation("relation","value1")
     h.addRelation("relation","value2")

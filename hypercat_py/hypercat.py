@@ -34,9 +34,9 @@
 ##
 ## Example:
 ##    # Create a catalogue
-##    h = hypercat("CatalogueContainingOneCatalogueAndOneResource")
+##    h = Hypercat("CatalogueContainingOneCatalogueAndOneResource")
 ##    # Create a second catalogue, and add it as a child of the first
-##    h2 = hypercat("ChildCatalogue")
+##    h2 = Hypercat("ChildCatalogue")
 ##    h.addItem(h2, "http://FIXMEcat")
 ##    # Create a resource, and add it as another child of the first catalogue
 ##    r = resource("resource1", "application/vnd.tsbiot.sensordata+json")
@@ -127,7 +127,7 @@ class Base:
         """Return hypercat as a string, of minimum length"""
         return json.dumps(self.asJSON(), sort_keys=True, separators=(',', ':'))
 
-class hypercat(Base):
+class Hypercat(Base):
     """Create a valid Hypercat catalogue"""
     # Catalogues must be of type catalogue, have a description, and contain at least an empty array of items
 
@@ -182,7 +182,7 @@ class hypercat(Base):
                 return child.findByPath(rel, rest)
         return None
 
-class resource(Base):
+class Resource(Base):
     """Create a valid Hypercat Resource"""
     # Resources must have an href, have a declared type, and have a description
     def __init__(self, description, contentType):
@@ -205,12 +205,12 @@ def loads(inputStr):
     assert CATALOGUE_TYPE in _values(inCat[CATALOGUE_METADATA], ISCONTENTTYPE_RELATION)
     # Manually copy mandatory fields, to check that they are they, and exclude other garbage
     desc = _values(inCat[CATALOGUE_METADATA], DESCRIPTION_RELATION)[0]  # TODO: We are ASSUMING just one description, which may not be true
-    outCat = hypercat(desc)
+    outCat = Hypercat(desc)
     for i in inCat[ITEMS]:
         href = i[HREF]
         contentType = _values(i[ITEM_METADATA], ISCONTENTTYPE_RELATION) [0]
         desc = _values(i[ITEM_METADATA], DESCRIPTION_RELATION) [0]
-        r = resource(desc, contentType)
+        r = Resource(desc, contentType)
         outCat.addItem(r, href)
 
     return outCat
