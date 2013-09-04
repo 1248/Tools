@@ -1,15 +1,44 @@
+#!/usr/bin/env python
+#
+# PATHFINDER_CLIENT.PY
+# Copyright (c) 2013 Pilgrim Beart <pilgrim.beart@1248.io>
+# 
+# Enables easy management of Hypercat catalogues on remote Pathfinder instances
+#
+##Permission is hereby granted, free of charge, to any person obtaining a copy
+##of this software and associated documentation files (the "Software"), to deal
+##in the Software without restriction, including without limitation the rights
+##to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+##copies of the Software, and to permit persons to whom the Software is
+##furnished to do so, subject to the following conditions:
+##
+##The above copyright notice and this permission notice shall be included in
+##all copies or substantial portions of the Software.
+##
+##THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+##IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+##FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+##AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+##LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+##OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+##THE SOFTWARE.
+##
+## Usage:
+##    Create a Catalogue object
+##    Write it to a Pathfinder instance
+##    Delete it
+
 import urllib
 import base64
 import logging
-import urllib2  # Warning - this doesn't check HTTPS certs (and the better "Requests" alternative module, which does, doesn't yet run under GAE)
+import urllib2  # Warning - outside of GAE, this doesn't check HTTPS certs (the better "Requests" alternative module does, but doesn't yet run in GAE)
 
 # Pushes HyperCat catalogues to Pathfinder instances
-# Catalogue URLs are arbitrary, and just assigned numerically
-# (i.e. they do not reflect the hierarchy of the catalogue if any -
-#       hierarchy comes solely from the links declared in the catalogues themselves)
+# Catalogue URLs are arbitrary (i.e. they do not reflect the hierarchy/structure of the catalogue if any -
+# Any structure comes solely from the links declared in the catalogues themselves.
 
-# You cannot POST a duplicate catalogue (i.e. to a catalogue name that already exists).
-# You have to DELETE it first.
+# Pathfinder doesn not allow a POST to replace an existing catalogue (it has to be DELETEd first)
+# So here we auto-delete on creation, by default
 # Pathfinder only accepts catalogue names with characters in the range [A-Za-z0-9]
 # Pathfinder generates "409 Conflict" errors for bad names & duplicate names
 
