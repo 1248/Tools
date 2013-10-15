@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # HYPERCAT.PY
-# Copyright (c) 2013 Pilgrim Beart <pilgrim.beart@1248.io>
+# Copyright (c) 2013 Pilgrim Beart <firstname.lastname@1248.io>
 # 
 # Enables easy creation of valid Hypercat catalogues
 # Written to comply with IoT Ecosystems Demonstrator Interoperability Action Plan V1.0 24th June 2013
@@ -103,6 +103,7 @@ def _values(metadata, rel):
     for r in metadata:
         if(r[REL] == rel):
             result.append(r[VAL])
+
     return result
 
 class Base:
@@ -115,6 +116,18 @@ class Base:
     def addRelation(self, rel, val):
         self.metadata += [{REL:rel, VAL:val}]
 
+    def replaceRelation(self, rel, val):
+        for i in range(len(self.metadata)):
+            if self.metadata[i][REL]==rel:
+                self.metadata[i][REL]=val
+
+    def rels(self):
+        """Returns a LIST of all the metadata relations"""
+        r = []
+        for i in self.metadata:
+            r = r + i[REL]
+        return []
+        
     def values(self, rel):
         """Returns a LIST of the values of all relations of type rel, since HyperCat allows rels to be repeated"""
         return _values(self.metadata, rel)
@@ -127,6 +140,12 @@ class Base:
         """Return hypercat as a string, of minimum length"""
         return json.dumps(self.asJSON(), sort_keys=True, separators=(',', ':'))
 
+    def isCatalogue(self):
+        return CATALOGUE_TYPE in self.values(ISCONTENTTYPE_RELATION)
+
+    def setHref(self,href):
+        self.href=href
+        
 class Hypercat(Base):
     """Create a valid Hypercat catalogue"""
     # Catalogues must be of type catalogue, have a description, and contain at least an empty array of items
@@ -152,10 +171,22 @@ class Hypercat(Base):
         return j
 
     def addItem(self, child, href):
-        """Add a new item (a catalogue or resource) as a child of this catalogue"""
+        """Add a new item (a catalogue or resource) as a child of this catalogue."""
         assert isinstance(child, Base), "child must be a hypercat Catalogue or Resource"
-        child.href = href
-        self.items += [child]
+        child.setHref(href)
+        for item in self.items:
+            assert item.href != href, "All items in a catalogue must have unique hrefs : "+href
+        self.items += [child]           # Add new
+        return        
+
+    def replaceItem(self, child, href):
+        """Replace an existing child (by matching the href). Guarantees not to change the order of items[]"""
+        assert isinstance(child, Base), "child item must be a hypercat Catalogue or Resource"
+        for i in range(len(self.items)):
+            if(self.items[i].href == href):
+                self.items[i] = child   # Replace existing
+                return
+        assert False, "No such child item to replace as "+href
 
     def description(self):  # 1.0 spec is unclear about whether there can be more than one description. We assume not.
         return self.values(DESCRIPTION_RELATION)[0]
@@ -182,6 +213,13 @@ class Hypercat(Base):
                 return child.findByPath(rel, rest)
         return None
 
+    def recurse(self, fn, *args):
+        """Calls fn on a hypercat and all its child hypercats (not resources)"""
+        fn(self, *args)
+        for i in self.items:
+            if isinstance(i, Hypercat):
+                self.recurse(i, *args)
+        
 class Resource(Base):
     """Create a valid Hypercat Resource"""
     # Resources must have an href, have a declared type, and have a description
@@ -210,7 +248,10 @@ def loads(inputStr):
         href = i[HREF]
         contentType = _values(i[ITEM_METADATA], ISCONTENTTYPE_RELATION) [0]
         desc = _values(i[ITEM_METADATA], DESCRIPTION_RELATION) [0]
-        r = Resource(desc, contentType)
+        if contentType == CATALOGUE_TYPE:
+            r = Hypercat(desc)
+        else:
+            r = Resource(desc, contentType)
         outCat.addItem(r, href)
 
     return outCat
