@@ -1,4 +1,4 @@
 Tools
 =====
 
-Tools for creating and reading valid HyperCat catalogues
+Tools for creating, reading and managing HyperCat catalogues and Pathfinder instances.
